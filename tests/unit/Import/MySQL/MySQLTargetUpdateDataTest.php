@@ -81,7 +81,8 @@ class MySQLTargetUpdateDataTest extends MySQLTargetTestCase
 
         $this->db->shouldReceive('get_new_dml_query_builder_object')
                  ->once()
-                 ->andReturn($this->realSimpleBuilder);
+                 ->with(FALSE)
+                 ->andReturn($this->realBuilder);
 
         $this->db->shouldReceive('query')
                  ->once()
@@ -227,11 +228,7 @@ class MySQLTargetUpdateDataTest extends MySQLTargetTestCase
                  ->once();
 
         $this->db->shouldReceive('get_new_dml_query_builder_object')
-                 ->once()
-                 ->andReturn($this->realSimpleBuilder);
-
-        $this->db->shouldReceive('get_new_dml_query_builder_object')
-                 ->once()
+                 ->twice()
                  ->with(FALSE)
                  ->andReturn($this->realBuilder);
 
@@ -304,11 +301,7 @@ class MySQLTargetUpdateDataTest extends MySQLTargetTestCase
                  ->once();
 
         $this->db->shouldReceive('get_new_dml_query_builder_object')
-                 ->once()
-                 ->andReturn($this->realSimpleBuilder);
-
-        $this->db->shouldReceive('get_new_dml_query_builder_object')
-                 ->once()
+                 ->twice()
                  ->with(FALSE)
                  ->andReturn($this->realBuilder);
 
