@@ -14,7 +14,6 @@ use Lunr\Gravity\MySQL\MySQLAccessObject;
 use Lunr\Gravity\MySQL\MySQLConnection;
 use Lunr\Gravity\MySQL\MySQLDMLQueryBuilder;
 use Lunr\Gravity\MySQL\MySQLQueryEscaper;
-use Lunr\Gravity\MySQL\MySQLSimpleDMLQueryBuilder;
 use Pipeline\Common\Node;
 use Pipeline\Import\ContentRangeInterface;
 use Pipeline\Import\DataDiffCategory;
@@ -43,9 +42,9 @@ class MySQLTarget extends MySQLAccessObject implements ImportTargetInterface
 
     /**
      * Active shared query builder.
-     * @var MySQLDMLQueryBuilder|MySQLSimpleDMLQueryBuilder|null
+     * @var MySQLDMLQueryBuilder|null
      */
-    protected MySQLDMLQueryBuilder|MySQLSimpleDMLQueryBuilder|null $builder;
+    protected MySQLDMLQueryBuilder|null $builder;
 
     /**
      * Keys to identify data by.
@@ -129,9 +128,9 @@ class MySQLTarget extends MySQLAccessObject implements ImportTargetInterface
     /**
      * Get the currently active query builder.
      *
-     * @return MySQLDMLQueryBuilder|MySQLSimpleDMLQueryBuilder|null Query Builder object, or NULL is none is active
+     * @return MySQLDMLQueryBuilder|null Query Builder object, or NULL is none is active
      */
-    public function getQueryBuilder(): MySQLDMLQueryBuilder|MySQLSimpleDMLQueryBuilder|null
+    public function getQueryBuilder(): MySQLDMLQueryBuilder|null
     {
         return $this->builder;
     }
@@ -506,17 +505,18 @@ class MySQLTarget extends MySQLAccessObject implements ImportTargetInterface
 
         $columns = array_keys($escaped[0][0]);
 
-        $updateColumns = array_map(function ($a) { return "`$a` = VALUES (`$a`)"; }, $columns);
+        $updateColumns = array_map(function ($a) { return "`$a` = `new`.`$a`"; }, $columns);
 
         $rows = 0;
 
         foreach ($escaped as $batch)
         {
-            $builder = $this->db->get_new_dml_query_builder_object();
+            $builder = $this->db->get_new_dml_query_builder_object(FALSE);
 
-            $builder->into($this->table)
-                    ->column_names($columns)
+            $builder->into($this->escaper->table($this->table))
+                    ->column_names(array_map(fn($column) => $this->escaper->column($column), $columns))
                     ->values($batch)
+                    ->row_alias($this->escaper->row_alias('new'))
                     ->on_duplicate_key_update(implode(', ', $updateColumns));
 
             $result = $this->db->query($builder->get_insert_query());

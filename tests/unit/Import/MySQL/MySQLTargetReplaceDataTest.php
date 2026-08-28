@@ -115,7 +115,7 @@ class MySQLTargetReplaceDataTest extends MySQLTargetTestCase
 
         $method->invokeArgs($this->class, [ &$entities ]);
 
-        $sql = $this->realSimpleBuilder->get_insert_query();
+        $sql = $this->realBuilder->get_insert_query();
 
         $this->assertSqlStringEqualsSqlFile($expectedFile, $sql);
     }
@@ -158,7 +158,8 @@ class MySQLTargetReplaceDataTest extends MySQLTargetTestCase
 
         $this->db->shouldReceive('get_new_dml_query_builder_object')
                  ->once()
-                 ->andReturn($this->realSimpleBuilder);
+                 ->with(FALSE)
+                 ->andReturn($this->realBuilder);
 
         $this->db->shouldReceive('query')
                  ->zeroOrMoreTimes()
@@ -365,7 +366,8 @@ class MySQLTargetReplaceDataTest extends MySQLTargetTestCase
 
         $this->db->shouldReceive('get_new_dml_query_builder_object')
                  ->twice()
-                 ->andReturn($this->realSimpleBuilder);
+                 ->with(FALSE)
+                 ->andReturn($this->realBuilder);
 
         $this->db->shouldReceive('query')
                  ->twice()
@@ -416,7 +418,8 @@ class MySQLTargetReplaceDataTest extends MySQLTargetTestCase
 
         $this->db->shouldReceive('get_new_dml_query_builder_object')
                  ->twice()
-                 ->andReturn($this->realSimpleBuilder);
+                 ->with(FALSE)
+                 ->andReturn($this->realBuilder);
 
         $this->db->shouldReceive('query')
                  ->times(4)
